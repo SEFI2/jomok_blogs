@@ -6,6 +6,8 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 const helmet = require('helmet')
 const cloudinary = require('cloudinary')
+const firebase = require('./firebase/auth')
+const usersRouter = require('./routes/users')
 
 const app = express()
 const router = express.Router()
@@ -38,7 +40,14 @@ app.use(bodyParser.json())
 app.use(helmet())
 //app.use('/static',express.static(path.join(__dirname,'static')))
 
+// Auth checker middleware
+app.use(firebase.firebaseAuthenticationMiddleware)
+app.use(firebase.firebaseAuthorizationMiddleware)
+app.use(firebase.firebaseAddUserMiddleware)
+
+
 app.use('/api', router)
+app.use('/users', usersRouter)
 
 /** start server */
 app.listen(port, () => {
