@@ -48,7 +48,8 @@ export function comment () {
 //req.body.article_id
 export function clap (article_id) {
     return (dispatch) => {
-        console.log('clapping...')
+      console.log('clapping...')
+      console.log(article_id)
         axios.post(`${url}article/clap`,{ article_id }).then((res) => {
             dispatch({type:'CLAP_ARTICLE'})
         }).catch((err)=>console.log(err))
