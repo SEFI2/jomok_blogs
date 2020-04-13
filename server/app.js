@@ -11,7 +11,7 @@ const usersRouter = require('./routes/users');
 
 const app = express();
 const router = express.Router();
-const url = process.env.MONGODB_URI || 'mongodb://localhost:27017/medium';
+const url = process.env.MONGODB_URI || 'mongodb://localhost:2121';
 
 /** configure cloudinary */
 cloudinary.config({
@@ -21,14 +21,12 @@ cloudinary.config({
 });
 
 /** connect to MongoDB datastore */
-try {
-  mongoose.connect(url, {
-    // useMongoClient: true
+mongoose.connect('mongodb://127.0.0.1:2121/test',
+  { useNewUrlParser: true , useUnifiedTopology: true  }
+).then(() => console.log('DB Connected!'))
+  .catch(err => {
+    console.log(`DB Connection Error: ${err.message}`);
   });
-} catch (error) {
-
-}
-
 const port = 5000 || process.env.PORT;
 
 /** set up routes {API Endpoints} */
@@ -41,13 +39,14 @@ app.use(helmet());
 // app.use('/static',express.static(path.join(__dirname,'static')))
 
 // Auth checker middleware
-app.use(firebase.firebaseAuthenticationMiddleware);
-app.use(firebase.firebaseAuthorizationMiddleware);
-app.use(firebase.firebaseAddUserMiddleware);
+//app.use(firebase.firebaseAuthenticationMiddleware);
+//app.use(firebase.firebaseAuthorizationMiddleware);
+//app.use(firebase.firebaseAddUserMiddleware);
 
 
 app.use('/api', router);
-app.use('/users', usersRouter);
+//app.use('/users', usersRouter);
+
 
 /** start server */
 app.listen(port, () => {

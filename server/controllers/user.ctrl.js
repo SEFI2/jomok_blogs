@@ -1,5 +1,5 @@
 /** */
-const { query } = require('express-validator/check');
+const { query, validationResult } = require('express-validator');
 const User = require('../models/User');
 const Article = require('../models/Article');
 
@@ -12,36 +12,68 @@ module.exports = {
           query('skip').optional().isInt().toInt(),
         ];
       }
+      default: {
+        return [
+        ];
+      }
     }
   },
   getUsers: async (req, res, next) => {
-    User.find().limit(req.query.limit).skip(req.query.skip).then((err, users) => {
-      if (err) res.send(err);
-      else res.send(users);
-      next();
-    })
-  }
-  addUser: (req, res, next) => {
-    new User(req.body).save((err, newUser) => {
-      if (err) res.send(err);
-      else if (!newUser) res.send(400);
-      else res.send(newUser);
-      next();
-    });
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const users = await User.find().limit(req.query.limit).skip(req.query.skip);
+      res.send(users);
+    } catch (err) {
+      res.send(err);
+    }
+    next();
   },
-  getUser: (req, res, next) => {
-    User.findById(req.params.id).then((err, user) => {
-      if (err) res.send(err);
-      else if (!user) res.send(404);
+  addUser: async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const user = await new User(req.body).save();
+      if (!user) res.send(400);
       else res.send(user);
-      next();
-    });
+    } catch (err) {
+      res.send(err);
+    }
+    next();
   },
-  /**
-     * user_to_follow_id, user_id
-     */
-  followUser: (req, res, next) => {
-    User.findById(req.body.id).then((user) => user.follow(req.body.user_id).then(() => res.json({ msg: 'followed' }))).catch(next);
+  getUser: async (req, res, next) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const user = await User.findById(req.params.id);
+      if (!user) res.send(400);
+      else res.send(user)
+    } catch(err) {
+      res.send(err)
+    }
+    next();
+  },
+  followUser: async (req, res, next) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+      const user = await User.findById(req.params.id);
+      
+      if (!user) res.send(400);
+      else res.send(user)
+    } catch(err) {
+      res.send(err)
+    }
+    next();
+    //User.findById(req.body.id).then((user) => user.follow(req.body.user_id).then(() => res.json({ msg: 'followed' }))).catch(next);
   },
   getUserProfile: (req, res, next) => {
     User.findById(req.params.id).then((_user) => User.find({ following: req.params.id }).then((_users) => {

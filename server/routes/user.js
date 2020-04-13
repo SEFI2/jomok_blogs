@@ -1,31 +1,29 @@
-const usercontroller = require('./../controllers/user.ctrl')
+const userController = require('../controllers/user.ctrl');
 
 module.exports = (router) => {
-  /**
-   * get a user
-   */
+  router.route(
+    '/user/:id',
+  ).get(
+    userController.validate('getUser'),
+    userController.getUser,
+  );
+  router.route(
+    '/users',
+  ).get(
+    userController.validate('getUsers'),
+    userController.getUsers,
+  );
   router
-    .route('/user/:id')
-      .get(usercontroller.getUser)
+        .route('/user')
+        .post(userController.addUser)
 
-    /**
-     * get a user profile
-     */
-    router
+
+  /*
+     router
         .route('/user/profile/:id')
         .get(usercontroller.getUserProfile)
-
-    /**
-     * adds a user
-     */
-    router
-        .route('/user')
-        .post(usercontroller.addUser)
-
-    /**
-     * follow a user
-     */
-    router
+       router
         .route('/user/follow')
-        .post(usercontroller.followUser)
-}
+    .post(usercontroller.followUser)
+    */
+};
