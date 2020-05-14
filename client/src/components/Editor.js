@@ -4,6 +4,7 @@ import MediumEditor from 'medium-editor';
 import axios from 'axios';
 import EditorHeader from './EditorHeader';
 import '../../node_modules/medium-editor/dist/css/medium-editor.min.css';
+import firebase from '../firebase/auth'
 
 class Editor extends Component {
   constructor() {
@@ -21,6 +22,7 @@ class Editor extends Component {
   }
 
   publishStory() {
+    const user = firebase.auth().currentUser;
     this.setState({
       loading: true,
     });
@@ -31,7 +33,8 @@ class Editor extends Component {
     formdata.append('text', this.state.text);
     formdata.append('image', this.state.imgSrc);
     formdata.append('title', document.getElementById('editor-title').value);
-    formdata.append('author_id', this.props.user._id);
+    
+    formdata.append('author_id', user.uid);
     formdata.append('description', this.state.description);
     formdata.append('claps', 0);
     axios.post(`${_url}article`, /* {
@@ -130,6 +133,10 @@ class Editor extends Component {
       console.log(this.state);
     });
   }
+  // <img alt={this.props.user.name} className="avatar-image" src={this.props.user.provider_pic} height="40" width="40" />
+  //   <small>{this.props.user.email}</small>
+  //   <div data-react-className="PopoverLink" data-react-props="{&quot;user_id&quot;:608,&quot;url&quot;:&quot;/users/netk&quot;,&quot;children&quot;:&quot;netk&quot;}"><span className="popover-link" data-reactroot=""><a href="">{this.props.user.name}</a></span></div>
+                
 
   render() {
     return (
@@ -139,10 +146,7 @@ class Editor extends Component {
           <div className="row animated fadeInUp" data-animation="fadeInUp-fadeOutDown">
             <div id="main-post" className="col-xs-10 col-md-8 col-md-offset-2 col-xs-offset-1 main-content">
               <div className="post-metadata">
-                <img alt={this.props.user.name} className="avatar-image" src={this.props.user.provider_pic} height="40" width="40" />
                 <div className="post-info">
-                  <div data-react-className="PopoverLink" data-react-props="{&quot;user_id&quot;:608,&quot;url&quot;:&quot;/users/netk&quot;,&quot;children&quot;:&quot;netk&quot;}"><span className="popover-link" data-reactroot=""><a href="">{this.props.user.name}</a></span></div>
-                  <small>{this.props.user.email}</small>
                 </div>
               </div>
 
@@ -181,7 +185,5 @@ class Editor extends Component {
     );
   }
 }
-const mapStateToProps = (state) => ({
-  user: state.authUser.user,
-});
-export default connect(mapStateToProps)(Editor);
+
+export default Editor;

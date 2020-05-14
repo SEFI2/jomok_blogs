@@ -1,30 +1,41 @@
-import React, {Component} from 'react'
-import PropTypes from 'prop-types'
-import { connect } from 'react-redux'
+import React from 'react'
+import firebase from '../firebase/auth'
+import common from '../utils/common'
 
-export default function (Conmponent) {
-    class Authenticate extends Component {
-        
-        componentWillMount() {
-            if (!this.props.isAuth) {
-                console.log(this.props.isAuth)
-                this.context.router.history.push('/')                        
-            }
-        }
+export default function withAuth (WrappedComponent) {
+  return class extends React.Component {
+    constructor (props) {
+      super(props)
+      this.state = {
+        authorized: false,
+        loading: true
+      }
+    }
 
-        render () {
-            return(
-            <Conmponent {...this.props} />
-            )
-        }   
-    }
-    Authenticate.contextTypes = {
-        router: PropTypes.object.isRequired
-    }
-    const mapStateToProps = state => {
-        return {
-            isAuth: state.authUser.isAuth
+    componentDidMount () {
+      console.log('OK')
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+          common.redirect('/signin')
+          return
         }
+        this.setState({
+          authorized: true,
+          loading: false
+        })
+      })
     }
-    return connect(mapStateToProps)(Authenticate)
+
+    render () {
+      if (this.state.loading) {
+        return null
+      } else if (this.state.authorized) {
+        return <WrappedComponent />
+      } else {
+        // TODO(aibek): remove
+        console.log('UNHANDLED')
+        return null
+      }
+    }
+  }
 }
